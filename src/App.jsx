@@ -12,6 +12,11 @@ function App() {
     setStart(true);
   }
 
+  function onQuizEndCallback() {
+    setStart(false);
+    toast.success("Get back to Home");
+  }
+
   return (
     <div>
       <Toaster position="top-center" />
@@ -32,7 +37,7 @@ function App() {
               </button>{" "}
             </div>
           ) : (
-            <Quiz />
+            <Quiz onQuizEndCallback={onQuizEndCallback} />
           )}
         </div>
       </div>
