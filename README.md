@@ -78,3 +78,9 @@ function App() {
 
 export default App;
 ```
+
+### Other Libary
+
+```
+npm install react-hot-toast
+```
