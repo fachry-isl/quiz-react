@@ -7,7 +7,8 @@ import dummyData from "../services/Api";
 const Quiz = ({ onQuizEndCallback }) => {
   // Track Active Question
   const [questionIndex, setQuestionIndex] = useState(0);
-  // Active Answer from A to B
+
+  // Track Active Answer from A to D
   const [answer, setAnswer] = useState("A");
 
   // Track Completed Question
@@ -15,6 +16,9 @@ const Quiz = ({ onQuizEndCallback }) => {
 
   // Track Finished Quiz
   const [isFinishQuiz, setFinish] = useState(false);
+
+  // Track whether to show a Hint
+  const [isHint, setHint] = useState(false);
 
   const currentQuestion = dummyData[questionIndex];
 
@@ -25,10 +29,12 @@ const Quiz = ({ onQuizEndCallback }) => {
 
   function validateAnswer(selected_answer) {
     if (selected_answer != currentQuestion.key_answer) {
-      toast.error("Wrong Answer!");
+      toast.error("Try again!");
+      setHint(true);
     } else {
-      toast.success("You're Right!");
+      toast.success("Awesome!");
       setComplete(true);
+      setHint(false);
     }
   }
 
@@ -51,15 +57,17 @@ const Quiz = ({ onQuizEndCallback }) => {
 
   if (isFinishQuiz) {
     return (
-      <div>
+      <div className="h-full">
         <Confetti recycle={false} numberOfPieces={500} />
-        <div>🎉 Congratulations!</div>
-        <button
-          onClick={onQuizEndChange}
-          className="border-2 border-black pl-2 pr-2 mt-5 cursor-pointer"
-        >
-          Go to Home
-        </button>
+        <div className="flex flex-col h-full items-center justify-center">
+          <div className="text-2xl">🎉 Congratulations!</div>
+          <button
+            onClick={onQuizEndChange}
+            className="border-2 border-black pl-2 pr-2 mt-5 cursor-pointer"
+          >
+            Go to Home
+          </button>
+        </div>
       </div>
     );
   }
@@ -73,7 +81,7 @@ const Quiz = ({ onQuizEndCallback }) => {
           Question ({currentQuestion.id} / {dummyData.length})
         </div>
         <div>{currentQuestion.question}</div>
-        <div className="pb-2 font-light">(Choose one correct answer)</div>
+        <div className="pb-2 font-normal">(Choose one correct answer)</div>
 
         {currentQuestion.options.map((option) => {
           return (
@@ -86,23 +94,39 @@ const Quiz = ({ onQuizEndCallback }) => {
           );
         })}
       </div>
+      <hr className="mt-5 mb-5" />
 
-      <div className="pt-4 font-light">Selected Answer: {answer}</div>
+      <div className="flex justify-between items-center">
+        <div className=" font-normal">Selected Answer: {answer}</div>
+        {isComplete ? (
+          <button
+            onClick={() => nextQuestion()}
+            className="mt-10 border-2 border-black p-2 text-black cursor-pointer bg-green-200"
+          >
+            Next Question
+          </button>
+        ) : (
+          <button
+            onClick={() => validateAnswer(answer)}
+            className="border-2 border-black p-2 text-black cursor-pointer"
+          >
+            Submit
+          </button>
+        )}
+      </div>
 
-      {isComplete ? (
-        <button
-          onClick={() => nextQuestion()}
-          className="mt-10 border-2 border-black p-2 text-black cursor-pointer bg-green-200"
-        >
-          Next Question
-        </button>
-      ) : (
-        <button
-          onClick={() => validateAnswer(answer)}
-          className="mt-10 border-2 border-black p-2 text-black cursor-pointer"
-        >
-          Submit
-        </button>
+      {isComplete && (
+        <div className="mt-5 text-black text-left p-5 bg-green-200">
+          <div className="font-medium pb-2">💡Explanation</div>
+          <div className="font-normal ">{currentQuestion.explanation}</div>
+        </div>
+      )}
+
+      {isHint && (
+        <div className="mt-5 text-black text-left p-5 bg-red-200">
+          <div className="font-medium pb-2">ℹ️ Hint</div>
+          <div className="font-normal ">{currentQuestion.hint}</div>
+        </div>
       )}
     </div>
   );

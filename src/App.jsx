@@ -20,11 +20,15 @@ function App() {
   return (
     <div>
       <Toaster position="top-center" />
-      <div className="mx-auto flex justify-center p-10 border-2 border-black w-full min-h-screen items-center font-bold">
+      <div
+        className={`mx-auto flex justify-center p-10 border-2 border-black w-full h-175 ${
+          !isStart ? "items-center" : ""
+        } font-bold`}
+      >
         <div className="flex-col">
           {!isStart ? (
             <div>
-              <h1 className="font-bold">Quiz App</h1>{" "}
+              <h1 className="font-bold text-2xl">Quiz App</h1>{" "}
               <h2 className="font-medium">
                 Welcome, press start button to proceed!
               </h2>
