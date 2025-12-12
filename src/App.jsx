@@ -7,8 +7,6 @@ function App() {
   const [isStart, setStart] = useState(false);
 
   function onQuizStart() {
-    toast.success("Starting the quiz");
-
     setStart(true);
   }
 

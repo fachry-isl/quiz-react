@@ -20,6 +20,28 @@ const Quiz = ({ onQuizEndCallback }) => {
   // Track whether to show a Hint
   const [isHint, setHint] = useState(false);
 
+  // Encouragement Message
+  const encouragmentMessage = [
+    "Awesome!",
+    "You're doing great!",
+    "You nailed it!",
+  ];
+
+  // Message state
+  const [message, setMessage] = useState(
+    encouragmentMessage[Math.floor(Math.random() * encouragmentMessage.length)]
+  );
+
+  function randomizeMessage() {
+    const randomMessage =
+      encouragmentMessage[
+        Math.floor(Math.random() * encouragmentMessage.length)
+      ];
+
+    console.log(randomMessage);
+    setMessage(randomMessage);
+  }
+
   const currentQuestion = dummyData[questionIndex];
 
   function onChangeAnswerCallback(new_answer) {
@@ -35,11 +57,12 @@ const Quiz = ({ onQuizEndCallback }) => {
       toast.success("Awesome!");
       setComplete(true);
       setHint(false);
+      randomizeMessage();
     }
   }
 
   function nextQuestion() {
-    if (questionIndex + 1 >= dummyData.length) {
+    if (questionIndex + 1 == dummyData.length) {
       setFinish(true);
     } else {
       setQuestionIndex(questionIndex + 1);
@@ -98,12 +121,15 @@ const Quiz = ({ onQuizEndCallback }) => {
 
       <div className="flex justify-between items-center">
         <div className=" font-normal">Selected Answer: {answer}</div>
+        <div>{dummyData.length}</div>
         {isComplete ? (
           <button
             onClick={() => nextQuestion()}
             className="mt-10 border-2 border-black p-2 text-black cursor-pointer bg-green-200"
           >
-            Next Question
+            {isComplete && questionIndex + 1 === dummyData.length
+              ? "Finish"
+              : "Next Question"}
           </button>
         ) : (
           <button
@@ -118,7 +144,9 @@ const Quiz = ({ onQuizEndCallback }) => {
       {isComplete && (
         <div className="mt-5 text-black text-left p-5 bg-green-200">
           <div className="font-medium pb-2">💡Explanation</div>
-          <div className="font-normal ">{currentQuestion.explanation}</div>
+          <div className="font-normal ">
+            {message} {currentQuestion.explanation}
+          </div>
         </div>
       )}
 
