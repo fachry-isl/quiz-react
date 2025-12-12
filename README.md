@@ -83,4 +83,5 @@ export default App;
 
 ```
 npm install react-hot-toast
+npm install react-confetti
 ```

@@ -69,6 +69,9 @@ const Quiz = ({ onQuizEndCallback }) => {
       {/* Show Confetti when user Complete the Question */}
       {isComplete && <Confetti recycle={false} />}
       <div className="text-left w-full">
+        <div>
+          Question ({currentQuestion.id} / {dummyData.length})
+        </div>
         <div>{currentQuestion.question}</div>
         <div className="pb-2 font-light">(Choose one correct answer)</div>
 
