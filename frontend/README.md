@@ -85,3 +85,8 @@ export default App;
 npm install react-hot-toast
 npm install react-confetti
 ```
+
+# Version Tracker
+
+- Quiz MVP with Dummy Data: https://github.com/fachry-isl/quiz-react/commit/a6697af4ca72b3c07a0afc6be3bf5b90c3897fed
+- AI Generated Quiz: On Progress

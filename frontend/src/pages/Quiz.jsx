@@ -121,7 +121,6 @@ const Quiz = ({ onQuizEndCallback }) => {
 
       <div className="flex justify-between items-center">
         <div className=" font-normal">Selected Answer: {answer}</div>
-        <div>{dummyData.length}</div>
         {isComplete ? (
           <button
             onClick={() => nextQuestion()}

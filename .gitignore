@@ -1,24 +1,103 @@
-# Logs
+# Root .gitignore for combined frontend (Node/Vite) and backend (Python)
+
+# ------------------------
+# OS / Editor
+# ------------------------
+.DS_Store
+Thumbs.db
+.DS_Store?
+.Spotlight-V100
+ehthumbs.db
+
+# ------------------------
+# Node / Frontend (Vite)
+# ------------------------
+node_modules/
+**/node_modules/
+.vite/
+**/.vite/
+dist/
+**/dist/
+dist-ssr/
+build/
 logs
 *.log
 npm-debug.log*
 yarn-debug.log*
-yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+npm-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# environment files (may contain secrets)
+.env
+.env.local
+.env.*.local
 
-# Editor directories and files
+# caches and lockstores
+.npm/
+.pnpm-store/
+.cache/
+.sass-cache/
+
+# Keep workspace settings in repo except extension recommendations
 .vscode/*
 !.vscode/extensions.json
-.idea
-.DS_Store
+
+# ------------------------
+# Python / Backend
+# ------------------------
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+env/
+venv/
+.venv/
+pip-wheel-metadata/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+.coverage
+coverage.xml
+__pypackages__/
+celerybeat-schedule
+celerybeat.pid
+
+# Local settings and instance folders
+instance/
+local_settings.py
+
+# Python bytecode cache
+**/__pycache__/
+
+# ------------------------
+# IDEs and tools
+# ------------------------
+.idea/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+
+# VS Code extensions cache and tasks
+/.vscode/tasks.json
+
+# ------------------------
+# Misc
+# ------------------------
+*.DS_Store
+*.swp
+*.swo
+*.egg
+*.log
+*.bak
+*.tmp
+
+# Temporary files
+tmp/
+temp/
+
+# End of .gitignore
