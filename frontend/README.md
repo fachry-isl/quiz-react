@@ -26,6 +26,11 @@ export default defineConfig({
 });
 ```
 
+### Import Tailwindcss on index.css
+```css
+@import "tailwindcss";
+```
+
 ### Modify app.jsx
 
 To test out Tailwindcss if instalation is succesfull
