@@ -5,7 +5,7 @@
 ## Init React + Vite project
 
 ```bash
-create vite@latest my-app -- --template react
+npm create vite@latest my-app -- --template react
 ```
 
 ## Install Tailwind CSS
