@@ -1,12 +1,19 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AnswerComponent from "../components/AnswerComponent";
 import { toast } from "react-hot-toast";
 import Confetti from "react-confetti";
-import dummyData from "../services/Api";
+import { dummyData, generateAIQuiz, generateQuiz } from "../services/Api";
+import Explanation from "../components/Explanation";
+import Hint from "../components/Hint";
 
-const Quiz = ({ onQuizEndCallback }) => {
+const Quiz = ({ onQuizEndCallback, mode, param }) => {
   // Track Active Question
   const [questionIndex, setQuestionIndex] = useState(0);
+
+  // Track Quiz Data
+  const [quizData, setQuizData] = useState(dummyData);
+
+  const currentQuestion = quizData[questionIndex];
 
   // Track Active Answer from A to D
   const [answer, setAnswer] = useState("A");
@@ -19,6 +26,9 @@ const Quiz = ({ onQuizEndCallback }) => {
 
   // Track whether to show a Hint
   const [isHint, setHint] = useState(false);
+
+  // Add loading
+  const [isLoading, setLoading] = useState(true);
 
   // Encouragement Message
   const encouragmentMessage = [
@@ -42,7 +52,52 @@ const Quiz = ({ onQuizEndCallback }) => {
     setMessage(randomMessage);
   }
 
-  const currentQuestion = dummyData[questionIndex];
+  useEffect(() => {
+    if (mode == "generated") {
+      console.log(
+        `Render Generated Quiz here ${JSON.stringify(param)}. OR topic ${
+          param.topic
+        }`
+      );
+
+      const fetchQuiz = async () => {
+        try {
+          // const response = await generateQuiz(
+          //   param.topic,
+          //   param.numQuestion,
+          //   param.difficulty
+          // );
+
+          const response = await generateAIQuiz(
+            param.topic,
+            param.numQuestion,
+            param.difficulty
+          );
+
+          // const data = await response.json();
+
+          console.log("Finish fetching quiz: ", JSON.stringify(response));
+
+          // console.log("Finish fetching AI quiz: ", JSON.stringify(response_ai));
+
+          // window.response_ai = response_ai;
+
+          //setQuizData(response);
+          setQuizData(response.questions);
+          setLoading(false);
+        } catch (err) {
+          console.log(err);
+        }
+      };
+
+      fetchQuiz();
+    } else if (mode == "default") {
+      console.log(`Default mode on starting Quiz`);
+      console.log(`${JSON.stringify(currentQuestion)}`);
+      setQuizData(dummyData);
+      setLoading(false);
+    }
+  }, [mode, param.topic, param.numQuestion, param.difficulty]);
 
   function onChangeAnswerCallback(new_answer) {
     setAnswer(new_answer);
@@ -62,7 +117,7 @@ const Quiz = ({ onQuizEndCallback }) => {
   }
 
   function nextQuestion() {
-    if (questionIndex + 1 == dummyData.length) {
+    if (questionIndex + 1 == quizData.length) {
       setFinish(true);
     } else {
       setQuestionIndex(questionIndex + 1);
@@ -96,66 +151,67 @@ const Quiz = ({ onQuizEndCallback }) => {
   }
 
   return (
-    <div>
-      {/* Show Confetti when user Complete the Question */}
-      {isComplete && <Confetti recycle={false} />}
-      <div className="text-left w-full">
+    <>
+      {isLoading ? (
+        <div>Loading the data...</div>
+      ) : (
         <div>
-          Question ({currentQuestion.id} / {dummyData.length})
-        </div>
-        <div>{currentQuestion.question}</div>
-        <div className="pb-2 font-normal">(Choose one correct answer)</div>
+          {/* Show Confetti when user Complete the Question */}
+          {isComplete && <Confetti recycle={false} />}
 
-        {currentQuestion.options.map((option) => {
-          return (
-            <AnswerComponent
-              key={option.key}
-              answer_prop={option}
-              onChangeAnswerCallback={onChangeAnswerCallback}
-              active={answer === option.key}
-            />
-          );
-        })}
-      </div>
-      <hr className="mt-5 mb-5" />
+          <div className="text-left w-full">
+            <div>
+              Question ({currentQuestion.id} / {quizData.length})
+            </div>
+            <div>{currentQuestion.question}</div>
+            <div className="pb-2 font-normal">(Choose one correct answer)</div>
 
-      <div className="flex justify-between items-center">
-        <div className=" font-normal">Selected Answer: {answer}</div>
-        {isComplete ? (
-          <button
-            onClick={() => nextQuestion()}
-            className="mt-10 border-2 border-black p-2 text-black cursor-pointer bg-green-200"
-          >
-            {isComplete && questionIndex + 1 === dummyData.length
-              ? "Finish"
-              : "Next Question"}
-          </button>
-        ) : (
-          <button
-            onClick={() => validateAnswer(answer)}
-            className="border-2 border-black p-2 text-black cursor-pointer"
-          >
-            Submit
-          </button>
-        )}
-      </div>
-
-      {isComplete && (
-        <div className="mt-5 text-black text-left p-5 bg-green-200">
-          <div className="font-medium pb-2">💡Explanation</div>
-          <div className="font-normal ">
-            {message} {currentQuestion.explanation}
+            {isLoading ? (
+              <div>loading the data...</div>
+            ) : (
+              currentQuestion.options.map((option) => {
+                return (
+                  <AnswerComponent
+                    key={option.key}
+                    answer_prop={option}
+                    onChangeAnswerCallback={onChangeAnswerCallback}
+                    active={answer === option.key}
+                  />
+                );
+              })
+            )}
           </div>
-        </div>
-      )}
+          <hr className="mt-5 mb-5" />
 
-      {isHint && (
-        <div className="mt-5 text-black text-left p-5 bg-red-200">
-          <div className="font-medium pb-2">ℹ️ Hint</div>
-          <div className="font-normal ">{currentQuestion.hint}</div>
+          <div className="flex justify-between items-center">
+            <div className=" font-normal">Selected Answer: {answer}</div>
+            {isComplete ? (
+              <button
+                onClick={() => nextQuestion()}
+                className="mt-10 border-2 border-black p-2 text-black cursor-pointer bg-green-200"
+              >
+                {isComplete && questionIndex + 1 === quizData.length
+                  ? "Finish"
+                  : "Next Question"}
+              </button>
+            ) : (
+              <button
+                onClick={() => validateAnswer(answer)}
+                className="border-2 border-black p-2 text-black cursor-pointer"
+              >
+                Submit
+              </button>
+            )}
+          </div>
+
+          {isComplete && (
+            <Explanation message={message} question={currentQuestion} />
+          )}
+
+          {isHint && <Hint question={currentQuestion} />}
         </div>
       )}
-    </div>
+    </>
   );
 };
 

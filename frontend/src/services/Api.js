@@ -1,4 +1,4 @@
-const dummyData = [
+export const dummyData = [
   {
     id: 1,
     question:
@@ -83,4 +83,138 @@ const dummyData = [
   },
 ];
 
-export default dummyData;
+export const reactDummyData = [
+  {
+    id: 1,
+    question: "What is the primary purpose of the useState hook in React?",
+    options: [
+      {
+        key: "A",
+        description: "A. To fetch data from an API",
+      },
+      {
+        key: "B",
+        description:
+          "B. To manage and update component state in functional components",
+      },
+      {
+        key: "C",
+        description: "C. To handle side effects like DOM manipulation",
+      },
+      {
+        key: "D",
+        description: "D. To create refs for accessing DOM elements",
+      },
+    ],
+    key_answer: "B",
+    hint: "Think about what 'state' means in React. It's data that can change over time and trigger re-renders. Which hook is specifically designed for this purpose in functional components?",
+    explanation:
+      "The useState hook is React's way of adding state management to functional components. It returns an array with two elements: the current state value and a function to update it. When you call setState (the updater function), React re-renders the component with the new state. Options A and C describe useEffect's functionality, while option D describes useRef. useState is specifically designed for managing local component state that changes over time.",
+  },
+  {
+    id: 2,
+    question:
+      "When does the useEffect hook run by default (without a dependency array)?",
+    options: [
+      {
+        key: "A",
+        description: "A. Only once when the component mounts",
+      },
+      {
+        key: "B",
+        description: "B. After every render (both mount and updates)",
+      },
+      {
+        key: "C",
+        description: "C. Only when state variables change",
+      },
+      {
+        key: "D",
+        description: "D. Before the component renders to the DOM",
+      },
+    ],
+    key_answer: "B",
+    hint: "Consider what happens when you don't provide a dependency array. Does React know when to run the effect, or will it run every time? Think about the component lifecycle.",
+    explanation:
+      "Without a dependency array, useEffect runs after every render—both the initial mount and all subsequent updates. This can cause performance issues if not managed properly. To control when useEffect runs, you use the dependency array: an empty array [] runs only on mount, while an array with dependencies [count, name] runs when those specific values change. Option D is incorrect because useEffect runs after the browser paints, not before, which is why it's called an 'effect' (side effect).",
+  },
+  {
+    id: 3,
+    question: "What is the Virtual DOM in React?",
+    options: [
+      {
+        key: "A",
+        description: "A. A programming language for building UIs",
+      },
+      {
+        key: "B",
+        description:
+          "B. A lightweight JavaScript representation of the real DOM that React uses to optimize updates",
+      },
+      {
+        key: "C",
+        description: "C. A database for storing component state",
+      },
+      {
+        key: "D",
+        description: "D. A CSS framework for styling React components",
+      },
+    ],
+    key_answer: "B",
+    hint: "Think of it like a blueprint or draft. React uses this concept to figure out what changed before making expensive updates to the actual browser DOM. It's a performance optimization technique.",
+    explanation:
+      "The Virtual DOM is a lightweight copy of the actual DOM kept in memory. When state changes, React creates a new Virtual DOM tree, compares it with the previous one (a process called 'reconciliation'), calculates the minimal set of changes needed, and then efficiently updates only those parts in the real DOM. This is like editing a draft document before printing—you make all your changes on the draft (Virtual DOM) and only print (update real DOM) the final version, saving time and resources. Options A, C, and D describe completely unrelated concepts.",
+  },
+];
+
+const BACKEND_URL = "http://127.0.0.1:8000";
+
+export const generateAIQuiz = async (topic, num, difficulty) => {
+  try {
+    const response = await fetch(`${BACKEND_URL}/api/generate-quiz`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        topic: topic,
+        num_questions: num,
+        difficulty: difficulty,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(
+        JSON.stringify(errorData) || `HTTP error! status ${response.status}`
+      );
+    }
+
+    return await response.json();
+  } catch (err) {
+    console.error("Error fetching products: ", err);
+    throw err;
+  }
+};
+
+// Simulation function that mimics API behavior
+export const generateQuiz = (topic, num, difficulty) => {
+  return new Promise((resolve) => {
+    // Simulate network delay (1-2 seconds)
+    setTimeout(() => {
+      // Clone and modify dummy data to match requested parameters
+      const simulatedData = reactDummyData
+        .slice(0, num)
+        .map((question, index) => ({
+          ...question,
+          id: index + 1,
+          // Optionally modify questions to include topic/difficulty
+          question: `[${difficulty.toUpperCase()} - ${topic}] ${
+            question.question
+          }`,
+        }));
+
+      resolve(simulatedData);
+    }, 1000); // 1.5 second delay to simulate real API
+  });
+};
