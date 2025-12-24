@@ -5,6 +5,8 @@ from dotenv import load_dotenv
 import google.generativeai as genai
 from models import QuizRequest, QuizResponse, QuizQuestion
 import json
+import csv
+from datetime import datetime
 
 # Load environment variables
 load_dotenv()
@@ -108,6 +110,38 @@ Make sure:
                 temperature=0.7,
             )
         )
+
+        # Extract token usage metadata
+        usage = response.usage_metadata
+        input_tokens = usage.prompt_token_count
+        output_tokens = usage.candidates_token_count
+        total_tokens = usage.total_token_count
+        
+        # Calculate costs (Gemini 2.0 Flash pricing as of Dec 2024)
+        # Input: $0.075 per 1M tokens
+        # Output: $0.30 per 1M tokens
+        input_cost = (input_tokens / 1_000_000) * 0.075
+        output_cost = (output_tokens / 1_000_000) * 0.30
+        total_cost = input_cost + output_cost
+
+        # Calculate in Rupiah (1 Dollar is Rp.16.752 as of Dec 2025)
+        input_cost_rp = input_cost * 16.752
+        output_cost_rp = output_cost * 16.752
+        total_cost_rp = input_cost_rp + output_cost_rp
+
+        # Log usage
+        print(f"Token Usage - Input: {input_tokens}, Output: {output_tokens}, Total: {total_tokens}")
+        print(f"Estimated Cost (USD) - Input: ${input_cost:.6f}, Output: ${output_cost:.6f}, Total: ${total_cost:.6f}")
+        print(f"Estimated Cost (Rupiah) - Input: Rp.{input_cost_rp:.6f}, Output: Rp.{output_cost_rp:.6f}, Total: Rp.{total_cost_rp:.6f}")
+        
+
+        # Save Log
+        log_usage_to_csv(
+            request.topic,
+            input_tokens,
+            output_tokens,
+            total_cost
+        )
         
         # Parse the response
         quiz_data = json.loads(response.text)
@@ -139,3 +173,15 @@ async def health_check():
             "health": "/api/health"
         }
     }
+
+def log_usage_to_csv(topic, input_tokens, output_tokens, cost):
+    """Log token usage to CSV file"""
+    with open('api_usage.csv', 'a', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow([
+            datetime.now().isoformat(),
+            topic,
+            input_tokens,
+            output_tokens,
+            cost
+        ])

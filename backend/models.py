@@ -18,6 +18,8 @@ class QuizQuestion(BaseModel):
 class QuizResponse(BaseModel):
     """Response model containing generated quiz questions"""
     questions: List[QuizQuestion]
+    
+    
 
 class QuizRequest(BaseModel):
     """Request model for quiz generation"""
