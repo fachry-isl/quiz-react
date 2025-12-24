@@ -19,7 +19,11 @@ app = FastAPI(
 # Configure CORS for React frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://localhost:5173"],  # React dev servers
+    allow_origins=[        
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",  # Add both localhost AND 127.0.0.1
+        "http://localhost:5174",  # Vite sometimes uses different ports
+        ], 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -52,9 +56,10 @@ async def generate_quiz(request: QuizRequest):
     Returns:
         QuizResponse with generated questions matching the schema
     """
+    print("Received request:", request)
     try:
         # Initialize Gemini model with structured output
-        model = genai.GenerativeModel('gemini-2.5-flash')
+        model = genai.GenerativeModel('gemini-2.0-flash')
         
         # Create prompt for quiz generation
         prompt = f"""
@@ -92,6 +97,7 @@ Make sure:
 - The key_answer matches one of the option keys
 - Hints are helpful but don't reveal the answer directly
 - Explanations are comprehensive and educational
+- Diversity of key answers from A to D
 """
 
         # Generate content with structured output

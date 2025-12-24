@@ -21,6 +21,6 @@ class QuizResponse(BaseModel):
 
 class QuizRequest(BaseModel):
     """Request model for quiz generation"""
-    topic: str = Field(..., description="Topic for quiz generation", min_length=3)
+    topic: str = Field(..., description="Topic for quiz generation")
     num_questions: int = Field(default=3, description="Number of questions to generate", ge=1, le=10)
     difficulty: str = Field(default="medium", description="Difficulty level: easy, medium, hard")
