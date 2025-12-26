@@ -1,0 +1,19 @@
+services:
+  backend:
+    build: ./backend
+    container_name: quiz-backend
+    ports:
+      - "8000:8000"
+    env_file:
+      - ./backend/.env
+    volumes:
+      # Persist the usage logs
+      - ./backend/api_usage.csv:/app/api_usage.csv
+
+  frontend:
+    build: ./frontend
+    container_name: quiz-frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
