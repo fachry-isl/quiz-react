@@ -8,7 +8,7 @@ services:
       - ./backend/.env
     volumes:
       # Persist the usage logs
-      - ./backend/api_usage.csv:/app/api_usage.csv
+      - ./backend/logs/:/app/logs/
 
   frontend:
     build: ./frontend

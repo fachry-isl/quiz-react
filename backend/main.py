@@ -7,6 +7,7 @@ from models import QuizRequest, QuizResponse, QuizQuestion
 import json
 import csv
 from datetime import datetime
+import traceback
 
 # Load environment variables
 load_dotenv()
@@ -136,12 +137,16 @@ Make sure:
         
 
         # Save Log
-        log_usage_to_csv(
-            request.topic,
-            input_tokens,
-            output_tokens,
-            total_cost
-        )
+        try:
+            log_usage_to_csv(
+                request.topic,
+                input_tokens,
+                output_tokens,
+                total_cost
+            )
+        except OSError as e:
+            # This returns a clearer message to the client instead of a generic 500
+            raise HTTPException(status_code=500, detail=f"Storage error writing usage log: {e}")
         
         # Parse the response
         quiz_data = json.loads(response.text)
@@ -174,14 +179,47 @@ async def health_check():
         }
     }
 
-def log_usage_to_csv(topic, input_tokens, output_tokens, cost):
-    """Log token usage to CSV file"""
-    with open('api_usage.csv', 'a', newline='') as f:
-        writer = csv.writer(f)
-        writer.writerow([
-            datetime.now().isoformat(),
-            topic,
-            input_tokens,
-            output_tokens,
-            cost
-        ])
+
+def _ensure_file(path: str):
+    """
+    Ensure `path` exists and is a regular file.
+    - If the parent directory doesn't exist, create it.
+    - If the path exists and is a directory, raise OSError.
+    - If the path doesn't exist, create an empty file.
+    Returns the path.
+    """
+    dirpath = os.path.dirname(path) or "."
+    if dirpath and not os.path.exists(dirpath):
+        os.makedirs(dirpath, exist_ok=True)
+
+    if os.path.exists(path) and os.path.isdir(path):
+        raise OSError(f"Expected a file at '{path}', but found a directory.")
+
+    if not os.path.exists(path):
+        # Create an empty file
+        open(path, "w").close()
+
+    return path
+
+def log_usage_to_csv(topic, input_tokens, output_tokens, cost, path="/app/logs/api_usage.csv"):
+    """Log token usage to CSV file, creating the file if needed."""
+    try:
+        _ensure_file(path)
+        with open(path, "a", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerow([
+                datetime.now().isoformat(),
+                topic,
+                input_tokens,
+                output_tokens,
+                cost
+            ])
+    except OSError as e:
+        print("File I/O error while writing api_usage.csv:", str(e))
+        print(traceback.format_exc())
+        # Re-raise so caller can map to a proper HTTP response
+        raise
+    except Exception as e:
+        print("Unexpected error while writing api_usage.csv:", str(e))
+        print(traceback.format_exc())
+        raise
